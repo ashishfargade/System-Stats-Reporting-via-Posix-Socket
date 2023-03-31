@@ -2,7 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main() {
+typedef struct cpu_type{
+        char cpu_model[255];
+}CPU;
+
+CPU cpuDetails() {
     FILE* fp;
     char buffer[1024];
     char* cpu_info = NULL;
@@ -11,7 +15,6 @@ int main() {
     fp = fopen("/proc/cpuinfo", "r"); // open the cpuinfo file
     if (fp == NULL) {
         perror("Error opening file");
-        return EXIT_FAILURE;
     }
     
     // read the file line by line
@@ -22,7 +25,6 @@ int main() {
             cpu_info = malloc(size);
             if (cpu_info == NULL) {
                 perror("Error allocating memory");
-                return EXIT_FAILURE;
             }
             strcpy(cpu_info, buffer);
             break;
@@ -30,13 +32,18 @@ int main() {
     }
     
     fclose(fp); // close the file
-    
+   
+    CPU CPU1;
+
     if (cpu_info != NULL) {
-        printf("CPU info: %s\n", cpu_info);
-        free(cpu_info); // free the memory allocated for the CPU info string
+        //printf("CPU info: %s\n", cpu_info);
+        strcpy(CPU1.cpu_model, cpu_info);
     } else {
         printf("CPU info not found\n");
     }
     
-    return EXIT_SUCCESS;
+    return CPU1;
 }
+
+
+//compile with -c flag

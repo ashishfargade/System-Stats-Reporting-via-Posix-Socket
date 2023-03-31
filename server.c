@@ -11,6 +11,12 @@ void error(char* msg){
     exit(1);
 }
 
+void menu(){
+    printf("\n-----Select an option-----\n");
+    printf("1) CPU info\n");
+    printf("2) OS info\n");
+}
+
 int main(int argc, char const *argv[])
 {
     //arg[1] is port no.
@@ -51,10 +57,62 @@ int main(int argc, char const *argv[])
         printf("Accepted \n");
     }
 
-    char message[255] = "Hello Client this is server";
-    send(client_sock, message, sizeof(message), 0);
+    char message[255] = "Hello Client this is server\n";
+    int r1 = send(client_sock, message, sizeof(message), 0);
+    if (r1 < 0){
+        error("Error sending from server");
+    }
 
+//PART 2    
+char selection1;
+int repeat;
+
+    while (1){
+
+        menu();
+        scanf(" %c", &selection1);
+        printf("Selection = %c", selection1);
+
+        send(client_sock, &selection1, sizeof(selection1), 0);
+
+        printf("\n");
+
+        char buffer[1023];
+
+
+        if(selection1 == '1'){
+            FILE* fp = fopen("server_cpufile.txt", "w");
+            recv(client_sock, buffer, sizeof(buffer), 0);
+            fwrite(buffer, sizeof(char), strlen(buffer), fp);
+            memset(buffer, 0, 1023);
+            fclose(fp);
+        }
+
+        if(selection1 == '2'){
+            FILE* fp = fopen("server_osfile.txt", "w");
+            fclose(fp);
+            for(int i=0 ; i<=3 ; i++){
+                FILE* fp = fopen("server_osfile.txt", "a");
+                int r3 = recv(client_sock, buffer, sizeof(buffer), 0);
+                if (r3 < 0){
+                    printf("Error in receiving..Please try again");
+                    break;
+                }
+                //printf("%s", buffer);
+                fwrite(buffer, sizeof(char), strlen(buffer), fp);
+                memset(buffer, 0, 1023);
+                fclose(fp);
+            }
+        }
+
+        printf("\nRepeat Process?: 1)YES   0)NO\n");
+        scanf("%d", &repeat); 
+        if (repeat == 0){
+            break;
+        }
+    }
     
-
+//EXIT
+    close(server_sock);
     return 0;
 }
